@@ -5,16 +5,30 @@ export type UserRole = "admin" | "bidder";
 export interface DemoUser {
   role: UserRole;
   name: string;
+  /** Bank or institution the user acts for. */
+  institution: string;
   email: string;
   password: string;
 }
 
 export const DEMO_USERS: DemoUser[] = [
-  { role: "admin", name: "Alex Morgan", email: "admin@bidora.demo", password: "admin123" },
-  { role: "bidder", name: "Jordan Lee", email: "bidder@bidora.demo", password: "bidder123" },
+  {
+    role: "admin",
+    name: "Andi Pratama",
+    institution: "NEW Bestie BPJS",
+    email: "admin@bestiebpjs.demo",
+    password: "admin123",
+  },
+  {
+    role: "bidder",
+    name: "Rizky Hidayat",
+    institution: "Bank Nusantara",
+    email: "bank@bestiebpjs.demo",
+    password: "bank123",
+  },
 ];
 
-const STORAGE_KEY = "bidora:session";
+const STORAGE_KEY = "bestie:session";
 
 interface AuthContextValue {
   user: DemoUser | null;
@@ -39,7 +53,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       login: (email, password) => {
         const matchedUser = DEMO_USERS.find(
-          (demoUser) => demoUser.email === email.trim().toLowerCase() && demoUser.password === password,
+          (demoUser) =>
+            demoUser.email === email.trim().toLowerCase() &&
+            demoUser.password === password,
         );
         if (!matchedUser) return false;
         window.localStorage.setItem(STORAGE_KEY, matchedUser.email);

@@ -1,29 +1,46 @@
 import { useMemo, useState } from "react";
-import { Gavel, ShieldCheck, Timer, TrendingUp } from "lucide-react";
+import { CalendarClock, Radio, Wallet } from "lucide-react";
 import { useAuctions } from "@/context/AuctionContext";
+import { useAuth } from "@/context/AuthContext";
 import { getAuctionStatus } from "@/lib/auctions";
+import { formatCurrencyCompact } from "@/lib/currency";
 import { AuctionStatus } from "@shared/api";
 import AuctionCard from "@/components/auction/AuctionCard";
+import DemoSimulationToggle from "@/components/auction/DemoSimulationToggle";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const filters: { value: "all" | AuctionStatus; label: string }[] = [
-  { value: "all", label: "All auctions" },
-  { value: "live", label: "Live" },
-  { value: "upcoming", label: "Upcoming" },
-  { value: "ended", label: "Ended" },
+  { value: "all", label: "Semua auction" },
+  { value: "live", label: "Berlangsung" },
+  { value: "upcoming", label: "Akan dibuka" },
+  { value: "ended", label: "Selesai" },
 ];
 
+/**
+ * The auction floor. Everyone here is signed in, so this is a working
+ * dashboard, not a landing page: compact header, stats inline, and the
+ * auctions themselves visible without scrolling.
+ */
 export default function Index() {
   const { auctions } = useAuctions();
+  const { user } = useAuth();
   const [filter, setFilter] = useState<"all" | AuctionStatus>("all");
 
   const counts = useMemo(() => {
     const result = { all: auctions.length, live: 0, upcoming: 0, ended: 0 };
-    auctions.forEach((a) => {
-      result[getAuctionStatus(a)]++;
+    auctions.forEach((auction) => {
+      result[getAuctionStatus(auction)]++;
     });
     return result;
   }, [auctions]);
+
+  const liveValue = useMemo(
+    () =>
+      auctions
+        .filter((auction) => getAuctionStatus(auction) === "live")
+        .reduce((total, auction) => total + auction.principal, 0),
+    [auctions],
+  );
 
   const visible = useMemo(() => {
     const sorted = [...auctions].sort((a, b) => {
@@ -31,55 +48,70 @@ export default function Index() {
       return order[getAuctionStatus(a)] - order[getAuctionStatus(b)];
     });
     if (filter === "all") return sorted;
-    return sorted.filter((a) => getAuctionStatus(a) === filter);
+    return sorted.filter((auction) => getAuctionStatus(auction) === filter);
   }, [auctions, filter]);
 
   return (
     <div>
-      <section className="relative overflow-hidden border-b border-border/70 bg-gradient-to-b from-secondary/60 to-background">
-        <div className="absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.16),transparent_65%)]" />
-        <div className="container flex flex-col items-center gap-6 py-16 text-center sm:py-24">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
-            <Gavel className="h-4 w-4" />
-            Real-time bidding, transparent limits
-          </span>
-          <h1 className="max-w-2xl text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-            Win it before the clock runs out.
-          </h1>
-          <p className="max-w-xl text-balance text-muted-foreground sm:text-lg">
-            Browse open auctions, watch prices move live, and place bids within
-            the limits each auction sets — or with no limit at all.
-          </p>
-
-          <div className="mt-2 grid w-full max-w-xl grid-cols-3 gap-3 text-left sm:gap-4">
-            <div className="rounded-xl border border-border bg-card/60 p-4">
-              <TrendingUp className="mb-2 h-5 w-5 text-primary" />
-              <p className="text-xs text-muted-foreground">Live auctions</p>
-              <p className="font-display text-xl font-bold text-foreground">{counts.live}</p>
-            </div>
-            <div className="rounded-xl border border-border bg-card/60 p-4">
-              <Timer className="mb-2 h-5 w-5 text-primary" />
-              <p className="text-xs text-muted-foreground">Upcoming</p>
-              <p className="font-display text-xl font-bold text-foreground">{counts.upcoming}</p>
-            </div>
-            <div className="rounded-xl border border-border bg-card/60 p-4">
-              <ShieldCheck className="mb-2 h-5 w-5 text-primary" />
-              <p className="text-xs text-muted-foreground">Fair-limit bids</p>
-              <p className="font-display text-xl font-bold text-foreground">100%</p>
-            </div>
+      <section className="border-b border-border/70 bg-gradient-to-b from-secondary/50 to-background">
+        <div className="container flex flex-col gap-5 py-7 sm:py-8 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              Penempatan deposito
+            </h1>
+            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+              {user?.role === "admin"
+                ? "Pantau seluruh penempatan dan persaingan rate antar bank secara real-time."
+                : "Tawarkan rate dan tenor untuk setiap penempatan — Anda langsung tahu saat tersalip."}
+            </p>
           </div>
+
+          <dl className="grid w-full grid-cols-3 divide-x divide-border rounded-xl border border-border bg-card shadow-sm lg:w-auto">
+            <div className="px-4 py-3 sm:px-6">
+              <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Radio className="h-3.5 w-3.5 text-success" />
+                Berlangsung
+              </dt>
+              <dd className="mt-0.5 font-display text-xl font-bold text-foreground">
+                {counts.live}
+              </dd>
+            </div>
+            <div className="px-4 py-3 sm:px-6">
+              <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <CalendarClock className="h-3.5 w-3.5 text-primary" />
+                Akan dibuka
+              </dt>
+              <dd className="mt-0.5 font-display text-xl font-bold text-foreground">
+                {counts.upcoming}
+              </dd>
+            </div>
+            <div className="px-4 py-3 sm:px-6">
+              <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Wallet className="h-3.5 w-3.5 text-primary" />
+                Dana berjalan
+              </dt>
+              <dd className="mt-0.5 font-display text-xl font-bold text-foreground">
+                {formatCurrencyCompact(liveValue)}
+              </dd>
+            </div>
+          </dl>
         </div>
       </section>
 
-      <section className="container py-10 sm:py-14">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="font-display text-2xl font-bold text-foreground">Open auctions</h2>
-          <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
-            <TabsList>
-              {filters.map((f) => (
-                <TabsTrigger key={f.value} value={f.value}>
-                  {f.label}
-                  <span className="ml-1.5 text-xs text-muted-foreground">({counts[f.value]})</span>
+      <section className="container py-6 sm:py-8">
+        <DemoSimulationToggle className="mb-5" />
+
+        {/* Scrolls within itself on narrow screens — the nowrap triggers must
+            never be the thing that widens the page. */}
+        <div className="mb-5 overflow-x-auto pb-1">
+          <Tabs value={filter} onValueChange={(value) => setFilter(value as typeof filter)}>
+            <TabsList className="w-max">
+              {filters.map((item) => (
+                <TabsTrigger key={item.value} value={item.value}>
+                  {item.label}
+                  <span className="ml-1.5 text-xs text-muted-foreground">
+                    ({counts[item.value]})
+                  </span>
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -88,12 +120,12 @@ export default function Index() {
 
         {visible.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-20 text-center text-muted-foreground">
-            No auctions in this category yet.
+            Belum ada auction pada kategori ini.
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {visible.map((auction, i) => (
-              <AuctionCard key={auction.id} auction={auction} index={i} />
+            {visible.map((auction) => (
+              <AuctionCard key={auction.id} auction={auction} />
             ))}
           </div>
         )}

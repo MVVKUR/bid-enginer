@@ -7,10 +7,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AuctionProvider } from "@/context/AuctionContext";
+import { DemoSimulationProvider } from "@/context/DemoSimulationContext";
 import { AuthProvider, useAuth, UserRole } from "@/context/AuthContext";
 import Layout from "@/components/layout/Layout";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
+import AuctionRoom from "./pages/AuctionRoom";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -33,6 +35,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <AuctionProvider>
+            <DemoSimulationProvider>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route
@@ -40,6 +43,14 @@ const App = () => (
                 element={
                   <RequireAuth>
                     <Layout><Index /></Layout>
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/auction/:auctionId"
+                element={
+                  <RequireAuth>
+                    <Layout><AuctionRoom /></Layout>
                   </RequireAuth>
                 }
               />
@@ -60,6 +71,7 @@ const App = () => (
                 }
               />
             </Routes>
+            </DemoSimulationProvider>
           </AuctionProvider>
         </AuthProvider>
       </BrowserRouter>

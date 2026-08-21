@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ArrowRight, Gavel, KeyRound, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { ArrowRight, KeyRound, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,13 +9,13 @@ import { DEMO_USERS, useAuth, UserRole } from "@/context/AuthContext";
 
 const roleDetails: Record<UserRole, { label: string; description: string; icon: typeof ShieldCheck }> = {
   admin: {
-    label: "Admin demo",
-    description: "Create auctions, set schedules, and manage bid limits.",
+    label: "Demo Admin",
+    description: "Buka penempatan deposito, atur tenor dan batas rate, pantau persaingan bank.",
     icon: ShieldCheck,
   },
   bidder: {
-    label: "Bidder demo",
-    description: "Browse live lots and place bids within their rules.",
+    label: "Demo Bank Peserta",
+    description: "Masuk ruang auction, tawarkan rate dan tenor, naikkan saat tersalip.",
     icon: UserRound,
   },
 };
@@ -42,59 +42,78 @@ export default function Login() {
     event.preventDefault();
     setError(null);
     if (!login(email, password)) {
-      setError("Those demo credentials don't match. Try one of the accounts below.");
+      setError("Kredensial demo tidak cocok. Coba salah satu akun di bawah.");
       return;
     }
-    toast.success("Welcome to NEW Bestie BPJS");
+    toast.success("Selamat datang di NEW Bestie BPJS");
     navigate(destination, { replace: true });
   }
 
   function handleDemoLogin(role: UserRole) {
     loginAsDemo(role);
-    toast.success(`Signed in as ${roleDetails[role].label}`);
+    toast.success(`Masuk sebagai ${roleDetails[role].label}`);
     navigate(role === "admin" ? "/admin" : "/", { replace: true });
   }
 
   return (
     <div className="relative flex min-h-screen overflow-hidden bg-background">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(0,133,124,0.18),transparent_35%),radial-gradient(circle_at_85%_80%,rgba(245,130,32,0.14),transparent_30%)]" />
+      {/* Photo backdrop. The scrim below is load-bearing: the source image is a
+          bright outdoor shot, and the heading sits directly on it. */}
+      <div aria-hidden="true" className="absolute inset-0">
+        <img
+          src="/login-bg.jpg"
+          alt=""
+          className="h-full w-full object-cover object-center"
+        />
+        {/* Heavier at the top-left where the copy sits, lighter bottom-right so
+            the building and signage stay visible. Theme tokens keep it working
+            in dark mode. */}
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/85 to-background/55" />
+        {/* Lifts the lower band, where the photo's own signage would otherwise
+            compete with the demo hint text. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(0,133,124,0.18),transparent_35%),radial-gradient(circle_at_85%_80%,rgba(245,130,32,0.14),transparent_30%)]" />
+      </div>
       <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-6 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:px-10">
         <div className="mx-auto w-full max-w-md lg:mx-0">
           <Link to="/login" className="mb-12 inline-flex items-center gap-2">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-teal-700 text-primary-foreground shadow-lg shadow-primary/25">
-              <Gavel className="h-5 w-5" />
-            </span>
-            <span className="font-display text-xl font-bold tracking-tight">NEW Besti BPJS</span>
+            <img
+              src="/bpjs-mark.svg"
+              alt=""
+              aria-hidden="true"
+              className="h-11 w-11 shrink-0"
+            />
+            <span className="font-display text-xl font-bold tracking-tight">NEW Bestie BPJS</span>
           </Link>
 
           <div className="mb-8">
             <p className="mb-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
               <Sparkles className="h-4 w-4" />
-              Welcome back
+              Selamat datang
             </p>
-            <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Your trusted digital service portal.</h1>
+            <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Portal auction deposito Anda.</h1>
             <p className="mt-3 text-muted-foreground">
-              Sign in to access your Bestie BPJS services securely and continue where you left off.
+              Masuk untuk mengikuti auction penempatan deposito dan menawarkan rate secara real-time.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-border bg-card/85 p-6 shadow-xl shadow-primary/5 backdrop-blur-sm">
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email address</Label>
+              <Label htmlFor="email">Alamat email</Label>
               <Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" autoComplete="current-password" />
+              <Label htmlFor="password">Kata sandi</Label>
+              <Input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Masukkan kata sandi" autoComplete="current-password" />
             </div>
             {error && <p className="text-sm font-medium text-destructive">{error}</p>}
             <Button type="submit" className="h-11 w-full gap-2">
-              Sign in <ArrowRight className="h-4 w-4" />
+              Masuk <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
 
           <p className="mt-5 text-center text-xs text-muted-foreground">
-            This is a demo environment. Use one of the demo accounts below.
+            Ini lingkungan demo. Gunakan salah satu akun di bawah.
           </p>
         </div>
 
@@ -104,8 +123,8 @@ export default function Login() {
           <div className="relative w-full max-w-md rounded-3xl border border-white/60 bg-white/70 p-7 shadow-2xl shadow-primary/15 backdrop-blur-xl dark:border-white/10 dark:bg-card/80">
             <div className="mb-8 flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Demo access</p>
-                <h2 className="mt-1 font-display text-2xl font-bold">Choose your role</h2>
+                <p className="text-sm font-medium text-muted-foreground">Akses demo</p>
+                <h2 className="mt-1 font-display text-2xl font-bold">Pilih peran Anda</h2>
               </div>
               <span className="rounded-xl bg-gold/15 p-3 text-gold-foreground"><KeyRound className="h-5 w-5" /></span>
             </div>
@@ -124,7 +143,8 @@ export default function Login() {
                     <span className="min-w-0 flex-1">
                       <span className="block font-display font-bold text-foreground">{details.label}</span>
                       <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{details.description}</span>
-                      <span className="mt-2 block font-mono text-[11px] text-primary/80">{demoUser.email} · {demoUser.password}</span>
+                      <span className="mt-1.5 block text-[11px] font-medium text-foreground/70">{demoUser.institution}</span>
+                      <span className="mt-1 block font-mono text-[11px] text-primary/80">{demoUser.email} · {demoUser.password}</span>
                     </span>
                     <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                   </button>
@@ -133,7 +153,7 @@ export default function Login() {
             </div>
             <div className="mt-7 flex items-center gap-2 border-t border-border pt-5 text-xs text-muted-foreground">
               <ShieldCheck className="h-4 w-4 text-success" />
-              Demo credentials are available for preview only.
+              Kredensial demo hanya untuk pratinjau.
             </div>
           </div>
         </div>
