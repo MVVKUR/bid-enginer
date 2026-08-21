@@ -8,10 +8,10 @@ import BidDialog from "@/components/auction/BidDialog";
 import { Button } from "@/components/ui/button";
 
 const banners = [
-  "from-violet-500 via-purple-500 to-fuchsia-400",
+  "from-teal-700 via-teal-500 to-cyan-400",
   "from-amber-400 via-orange-400 to-rose-400",
-  "from-sky-500 via-indigo-500 to-violet-500",
-  "from-emerald-400 via-teal-500 to-cyan-500",
+  "from-cyan-600 via-teal-500 to-emerald-400",
+  "from-emerald-500 via-teal-500 to-cyan-400",
 ];
 
 export default function AuctionCard({ auction, index }: { auction: Auction; index: number }) {

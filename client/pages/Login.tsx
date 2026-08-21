@@ -45,7 +45,7 @@ export default function Login() {
       setError("Those demo credentials don't match. Try one of the accounts below.");
       return;
     }
-    toast.success("Welcome to Bidora");
+    toast.success("Welcome to NEW Bestie BPJS");
     navigate(destination, { replace: true });
   }
 
@@ -57,14 +57,14 @@ export default function Login() {
 
   return (
     <div className="relative flex min-h-screen overflow-hidden bg-background">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(124,58,237,0.18),transparent_35%),radial-gradient(circle_at_85%_80%,rgba(245,158,11,0.12),transparent_30%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(0,133,124,0.18),transparent_35%),radial-gradient(circle_at_85%_80%,rgba(245,130,32,0.14),transparent_30%)]" />
       <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-6 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:px-10">
         <div className="mx-auto w-full max-w-md lg:mx-0">
           <Link to="/login" className="mb-12 inline-flex items-center gap-2">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-purple-500 text-primary-foreground shadow-lg shadow-primary/25">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-teal-700 text-primary-foreground shadow-lg shadow-primary/25">
               <Gavel className="h-5 w-5" />
             </span>
-            <span className="font-display text-xl font-bold tracking-tight">Bidora</span>
+            <span className="font-display text-xl font-bold tracking-tight">NEW Bestie BPJS</span>
           </Link>
 
           <div className="mb-8">
@@ -72,9 +72,9 @@ export default function Login() {
               <Sparkles className="h-4 w-4" />
               Welcome back
             </p>
-            <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Step into the auction.</h1>
+            <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Your trusted digital service portal.</h1>
             <p className="mt-3 text-muted-foreground">
-              Sign in to discover live lots, place your next winning bid, or manage auctions as an admin.
+              Sign in to access your Bestie BPJS services securely and continue where you left off.
             </p>
           </div>
 
