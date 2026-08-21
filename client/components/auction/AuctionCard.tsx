@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Clock, Gavel, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Auction } from "@shared/api";
 import { getAuctionStatus, getCurrentPrice, formatCurrency, formatRange } from "@/lib/auctions";
 import StatusBadge from "@/components/auction/StatusBadge";
 import CountdownTimer from "@/components/auction/CountdownTimer";
 import BidDialog from "@/components/auction/BidDialog";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 
 const banners = [
   "from-teal-700 via-teal-500 to-cyan-400",
@@ -16,6 +18,8 @@ const banners = [
 
 export default function AuctionCard({ auction, index }: { auction: Auction; index: number }) {
   const [bidOpen, setBidOpen] = useState(false);
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const status = getAuctionStatus(auction);
   const currentPrice = getCurrentPrice(auction);
   const banner = banners[index % banners.length];
@@ -74,16 +78,22 @@ export default function AuctionCard({ auction, index }: { auction: Auction; inde
         </dl>
 
         <div className="mt-auto pt-1">
-          <Button
-            className="w-full"
-            disabled={status !== "live"}
-            variant={status === "live" ? "default" : "secondary"}
-            onClick={() => setBidOpen(true)}
-          >
-            {status === "live" && "Place bid"}
-            {status === "upcoming" && "Not open yet"}
-            {status === "ended" && "Auction closed"}
-          </Button>
+          {isAdmin ? (
+            <Button asChild className="w-full">
+              <Link to={`/admin?auction=${encodeURIComponent(auction.id)}`}>Manage bids</Link>
+            </Button>
+          ) : (
+            <Button
+              className="w-full"
+              disabled={status !== "live"}
+              variant={status === "live" ? "default" : "secondary"}
+              onClick={() => setBidOpen(true)}
+            >
+              {status === "live" && "Place bid"}
+              {status === "upcoming" && "Not open yet"}
+              {status === "ended" && "Auction closed"}
+            </Button>
+          )}
         </div>
       </div>
 

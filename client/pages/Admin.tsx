@@ -1,5 +1,6 @@
 import { FormEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useSearchParams } from "react-router-dom";
 import {
   Activity,
   ArrowLeft,
@@ -178,7 +179,8 @@ export default function Admin() {
   const { auctions, createAuction, deleteAuction } = useAuctions();
   const defaultStart = useMemo(() => new Date(Date.now() + 1000 * 60 * 30), []);
   const defaultEnd = useMemo(() => new Date(Date.now() + 1000 * 60 * 60 * 24), []);
-  const [selectedAuctionId, setSelectedAuctionId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedAuctionId, setSelectedAuctionId] = useState<string | null>(() => searchParams.get("auction"));
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [startTime, setStartTime] = useState(toLocalInputValue(defaultStart));
@@ -209,9 +211,17 @@ export default function Admin() {
     toast.success(`Auction "${title.trim()}" created`); resetForm();
   }
 
+  function selectAuction(id: string) {
+    setSelectedAuctionId(id);
+    setSearchParams({ auction: id });
+  }
+
   function removeAuction(id: string) {
     deleteAuction(id);
-    if (selectedAuctionId === id) setSelectedAuctionId(null);
+    if (selectedAuctionId === id) {
+      setSelectedAuctionId(null);
+      setSearchParams({});
+    }
     toast("Auction removed");
   }
 
@@ -237,7 +247,7 @@ export default function Admin() {
             <Table><TableHeader><TableRow><TableHead>Item</TableHead><TableHead>Status</TableHead><TableHead>Window</TableHead><TableHead>Limit</TableHead><TableHead>Price</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader><TableBody>
               {auctions.map((auction) => {
                 const status = getAuctionStatus(auction); const hasLimit = auction.minPrice !== null || auction.maxPrice !== null;
-                return <TableRow key={auction.id} className="cursor-pointer" onClick={() => setSelectedAuctionId(auction.id)}>
+                return <TableRow key={auction.id} className="cursor-pointer" onClick={() => selectAuction(auction.id)}>
                   <TableCell className="max-w-[220px]"><p className="truncate font-medium text-foreground">{auction.title}</p><p className="text-xs text-muted-foreground">{auction.bids.length} bid{auction.bids.length === 1 ? "" : "s"}</p></TableCell>
                   <TableCell><StatusBadge status={status} /></TableCell>
                   <TableCell className="text-xs text-muted-foreground">{formatDateTime(auction.startTime)} → {formatDateTime(auction.endTime)}</TableCell>
@@ -251,7 +261,7 @@ export default function Admin() {
         </div>
       </div>
 
-      {selectedAuction && <AuctionManagementPanel auction={selectedAuction} onBack={() => setSelectedAuctionId(null)} />}
+      {selectedAuction && <AuctionManagementPanel auction={selectedAuction} onBack={() => { setSelectedAuctionId(null); setSearchParams({}); }} />}
     </div>
   );
 }
