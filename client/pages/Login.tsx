@@ -64,7 +64,7 @@ export default function Login() {
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-teal-700 text-primary-foreground shadow-lg shadow-primary/25">
               <Gavel className="h-5 w-5" />
             </span>
-            <span className="font-display text-xl font-bold tracking-tight">NEW Bestie BPJS</span>
+            <span className="font-display text-xl font-bold tracking-tight">NEW Besti BPJS</span>
           </Link>
 
           <div className="mb-8">
